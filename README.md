@@ -6,7 +6,7 @@ Validate request on symfony controller annotation.
 Open a command console, enter your project directory and execute the following command to download the latest version of this bundle:
 
 ```
-composer require Jackai/SymfonyValidator
+composer require jackai/symfony-validator
 ```
 
 Open config/services.yaml and add this config:
