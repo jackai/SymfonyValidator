@@ -1,0 +1,28 @@
+{
+  "name": "jackai/symfony-validator",
+  "description": "Validate request on symfony controller annotation",
+  "keywords": [
+    "validate",
+    "symfony",
+    "annotation"
+  ],
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jackai",
+      "homepage": "https://github.com/jackai/"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "symfony/framework-bundle": "^4.0|^5.0",
+    "doctrine/annotations": "^1.0",
+    "symfony/validator": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jackai\\Validator\\": ""
+    }
+  }
+}
