@@ -15,6 +15,7 @@ class Validator
     public $requireQueryErrorCode = 0;
     public $throwOnValidateFail = true;
     public $throwOnMissingValidate = true;
+    public $emptyStringIsUndefined = true;
 
 
     public function __construct(array $data)

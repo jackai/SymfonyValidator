@@ -10,6 +10,7 @@ class RequestValidateListener
 {
     private $throwOnValidateFail;
     private $throwOnMissingValidate;
+    private $emptyStringIsUndefined;
     private $paramRule = [];
     private $queryRule = [];
 
@@ -42,6 +43,7 @@ class RequestValidateListener
 
         $this->throwOnValidateFail = $annotations->throwOnValidateFail;
         $this->throwOnMissingValidate = $annotations->throwOnMissingValidate;
+        $this->emptyStringIsUndefined = $annotations->emptyStringIsUndefined;
 
         // 驗證必填欄位
         $this->checkRequired($annotations->requireParam, $requset->request->all(), $annotations->requireParamErrorCode);
@@ -166,7 +168,7 @@ class RequestValidateListener
         $pathName = $recursivePath[0];
 
         if (count($recursivePath) == 1) {
-            return array_key_exists($pathName, $arr);
+            return array_key_exists($pathName, $arr) && !($this->emptyStringIsUndefined && $arr[$pathName] == '');
         }
 
         if (!array_key_exists($pathName, $arr)) {

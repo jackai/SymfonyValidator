@@ -33,6 +33,7 @@ class TestController extends AbstractController
       * @Validator(
       *     throwOnMissingValidate = true,
       *     throwOnValidateFail = true,
+      *     emptyStringIsUndefined = true,
       *     requireQuery = {"name"},
       *     query = {
       *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
