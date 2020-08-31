@@ -144,8 +144,9 @@ class RequestValidateListener
         foreach ($columnRule as $rule) {
             $validator = Validation::createValidator();
 
+            $ruleOption = array_key_exists('ruleOption', $rule) ? $rule['ruleOption'] : null;
             $ruleClass = str_replace('Assert', 'Symfony\Component\Validator\Constraints', $rule['rule']);
-            $errors = $validator->validate($value, new $ruleClass($rule['ruleOption']));
+            $errors = $validator->validate($value, new $ruleClass($ruleOption));
 
             if (count($errors) > 0 && $this->throwOnValidateFail) {
                 $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
