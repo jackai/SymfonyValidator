@@ -7,12 +7,12 @@ namespace Jackai\Validator;
  */
 class Validator
 {
-    public $param = [];
+    public $form = [];
     public $query = [];
-    public $requireParam = [];
+    public $requireForm = [];
     public $requireQuery = [];
-    public $requireParamErrorCode = 0;
-    public $requireQueryErrorCode = 0;
+    public $requireFormErrorCode = null;
+    public $requireQueryErrorCode = null;
     public $throwOnValidateFail = true;
     public $throwOnMissingValidate = true;
     public $emptyStringIsUndefined = true;
@@ -20,7 +20,7 @@ class Validator
 
     public function __construct(array $data)
     {
-        $arraySetters = ['param', 'query', 'requireParam', 'requireQuery'];
+        $arraySetters = ['form', 'query', 'requireForm', 'requireQuery'];
 
         foreach ($arraySetters as $k => $v) {
             if (isset($data[$v])) {
@@ -28,7 +28,7 @@ class Validator
             }
         }
 
-        $setters = ['requireParamErrorCode', 'requireQueryErrorCode', 'throwOnValidateFail', 'throwOnMissingValidate'];
+        $setters = ['requireFormErrorCode', 'requireQueryErrorCode', 'throwOnValidateFail', 'throwOnMissingValidate'];
 
         foreach ($setters as $k => $v) {
             if (isset($data[$v])) {

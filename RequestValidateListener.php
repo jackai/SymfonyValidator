@@ -11,9 +11,9 @@ class RequestValidateListener
     private $throwOnValidateFail;
     private $throwOnMissingValidate;
     private $emptyStringIsUndefined;
-    private $paramRule = [];
+    private $formRule = [];
     private $queryRule = [];
-    private $ruleRequireParam = [];
+    private $ruleRequireForm = [];
     private $ruleRequireQuery = [];
 
     /**
@@ -49,20 +49,20 @@ class RequestValidateListener
         $this->emptyStringIsUndefined = $annotations->emptyStringIsUndefined;
 
         // 驗證必填欄位
-        $this->checkRequired($annotations->requireParam, $requset->request->all(), $annotations->requireParamErrorCode);
+        $this->checkRequired($annotations->requireForm, $requset->request->all(), $annotations->requireFormErrorCode);
         $this->checkRequired($annotations->requireQuery, $requset->query->all(), $annotations->requireQueryErrorCode);
 
-        foreach ($annotations->param as $k => $v) {
+        foreach ($annotations->form as $k => $v) {
             if ($v['rule'] == 'require') {
-                array_push($this->ruleRequireParam, $v);
+                array_push($this->ruleRequireForm, $v);
                 continue;
             }
 
-            if (!array_key_exists($v['name'], $this->paramRule)) {
-                $this->paramRule[$v['name']] = [];
+            if (!array_key_exists($v['name'], $this->formRule)) {
+                $this->formRule[$v['name']] = [];
             }
 
-            array_push($this->paramRule[$v['name']], $v);
+            array_push($this->formRule[$v['name']], $v);
         }
 
         foreach ($annotations->query as $k => $v) {
@@ -79,15 +79,15 @@ class RequestValidateListener
         }
 
         // 檢查條件必填欄位
-        $this->ruleRequireCheck($this->ruleRequireParam, $requset->request->all());
+        $this->ruleRequireCheck($this->ruleRequireForm, $requset->request->all());
         $this->ruleRequireCheck($this->ruleRequireQuery, $requset->query->all());
 
         // 填充預設值
-        $requset->request->replace($this->fillingData($this->paramRule, $requset->request->all()));
+        $requset->request->replace($this->fillingData($this->formRule, $requset->request->all()));
         $requset->query->replace($this->fillingData($this->queryRule, $requset->query->all()));
 
         // 驗證欄位值
-        $this->recursiveValidate($this->paramRule, $requset->request->all());
+        $this->recursiveValidate($this->formRule, $requset->request->all());
         $this->recursiveValidate($this->queryRule, $requset->query->all());
     }
 
@@ -144,7 +144,7 @@ class RequestValidateListener
             }
 
             if (!is_array($ruleOption['values']) || count($ruleOption['values']) < 1) {
-                throw new \ErrorException('ruleOption.value error' . json_encode($rule));
+                throw new \ErrorException('ruleOption.value error, At least one value :' . json_encode($rule));
             }
 
             $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
@@ -153,7 +153,7 @@ class RequestValidateListener
             switch ($ruleOption['mode']) {
                 case 'if':
                     if (count($ruleOption['values']) < 2) {
-                        throw new \ErrorException('ruleOption.value error' . json_encode($rule));
+                        throw new \ErrorException('ruleOption.value error, There must be at least two value :' . json_encode($rule));
                     }
 
                     $checkValue = $ruleOption['values'];
