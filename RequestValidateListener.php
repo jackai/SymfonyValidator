@@ -256,7 +256,7 @@ class RequestValidateListener
      */
     private function recursiveValidate($rules, $value, $path = '')
     {
-        if (is_array($value)) {
+        if (is_array($value) && !isset($value[0])) {
             foreach ($value as $k => $v) {
                 $recursivePath = $path == '' ? $k : "$path.$k";
                 $this->recursiveValidate($rules, $v, $recursivePath);
@@ -279,13 +279,18 @@ class RequestValidateListener
 
             $ruleOption = array_key_exists('ruleOption', $rule) ? $rule['ruleOption'] : null;
             $ruleClass = str_replace('Assert', 'Symfony\Component\Validator\Constraints', $rule['rule']);
-            $errors = $validator->validate($value, new $ruleClass($ruleOption));
 
-            if (count($errors) > 0 && $this->throwOnValidateFail) {
-                $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
-                $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : $errors[0]->getMessage();
+            $value = is_array($value) ? $value : [$value];
 
-                throw new \InvalidArgumentException("$path - {$errorMsg}", $errorCode);
+            foreach ($value as $v) {
+                $errors = $validator->validate($v, new $ruleClass($ruleOption));
+
+                if (count($errors) > 0 && $this->throwOnValidateFail) {
+                    $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
+                    $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : $errors[0]->getMessage();
+
+                    throw new \InvalidArgumentException("$path - {$errorMsg}", $errorCode);
+                }
             }
         }
     }
