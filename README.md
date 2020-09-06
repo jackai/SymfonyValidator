@@ -1,5 +1,7 @@
 # Jackai Symfony Validator
 
+[![Build Status](https://travis-ci.org/jackai/SymfonyValidator.svg?branch=master)](https://travis-ci.org/jackai/SymfonyValidator)
+
 Validate request on symfony controller annotation.
 
 ## Installation
@@ -13,7 +15,7 @@ composer require jackai/symfony-validator
 
 ```
 services:
-    Jackai\Validator\RequestValidateListener:
+    Jackai\Validator\RequestAdvancedValidateListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request }
 ```
@@ -59,13 +61,13 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Jackai\Validator\Validator;
+use Jackai\Validator\AdvancedValidator;
 
 class TestController extends AbstractController
 {
      /**
       * @Route("/test")
-      * @Validator(
+      * @AdvancedValidator(
       *     throwOnMissingValidate = true,
       *     throwOnValidateFail = true,
       *     emptyStringIsUndefined = true,
@@ -76,7 +78,7 @@ class TestController extends AbstractController
       *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
       *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
       *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
-      *     }
+      *     },
       *     requireForm = {"postParamName"},
       *     requireFormErrorCode = 999,
       *     form = {
@@ -101,13 +103,13 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Jackai\Validator\Validator;
+use Jackai\Validator\AdvancedValidator;
 
 class TestController extends AbstractController
 {
      /**
       * @Route("/test")
-      * @Validator(
+      * @AdvancedValidator(
       *     throwOnMissingValidate = true,
       *     throwOnValidateFail = true,
       *     emptyStringIsUndefined = true,
@@ -119,7 +121,7 @@ class TestController extends AbstractController
       *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
       *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
       *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
-      *     }
+      *     },
       *     requireForm = {"postParamName"},
       *     requireFormErrorCode = 999,
       *     form = {
