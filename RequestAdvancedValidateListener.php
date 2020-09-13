@@ -6,7 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Validator\Validation;
 
-class RequestValidateListener
+class RequestAdvancedValidateListener
 {
     private $throwOnValidateFail;
     private $throwOnMissingValidate;
@@ -37,7 +37,7 @@ class RequestValidateListener
 
         // the annotations
         $annotationReader = new AnnotationReader();
-        $annotations = $annotationReader->getMethodAnnotation($reflectedMethod, Validator::class);
+        $annotations = $annotationReader->getMethodAnnotation($reflectedMethod, AdvancedValidator::class);
 
         if (!$annotations) {
             // 不存在要驗證的參數則跳過
@@ -162,7 +162,7 @@ class RequestValidateListener
 
                     // 如果條件欄位不存在則略過
                     if (!$this->recursiveValidateRequired($data, $targetField)) {
-                        continue;
+                        break;
                     }
 
                     $fieldValue = $this->getValue($data, $targetField);
@@ -210,7 +210,7 @@ class RequestValidateListener
                     $count = 0;
 
                     foreach ($ruleOption['values'] as $checkValue) {
-                        if (!$this->recursiveValidateRequired($data, $checkValue)) {
+                        if ($this->recursiveValidateRequired($data, $checkValue)) {
                             $count += 1;
                         }
                     }
@@ -266,7 +266,7 @@ class RequestValidateListener
 
         if (!array_key_exists($path, $rules)) {
             if ($this->throwOnMissingValidate) {
-                throw new \InvalidArgumentException("$path missing validate");
+                throw new \InvalidArgumentException("Missing validate: $path");
             }
 
             return;
@@ -283,13 +283,17 @@ class RequestValidateListener
             $value = is_array($value) ? $value : [$value];
 
             foreach ($value as $v) {
+                if ($this->emptyStringIsUndefined && $v === '') {
+                    continue;
+                }
+
                 $errors = $validator->validate($v, new $ruleClass($ruleOption));
 
                 if (count($errors) > 0 && $this->throwOnValidateFail) {
                     $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
-                    $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : $errors[0]->getMessage();
+                    $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : $path . '-' . $errors[0]->getMessage();
 
-                    throw new \InvalidArgumentException("$path - {$errorMsg}", $errorCode);
+                    throw new \InvalidArgumentException($errorMsg, $errorCode);
                 }
             }
         }
@@ -311,7 +315,7 @@ class RequestValidateListener
         $pathName = $recursivePath[0];
 
         if (count($recursivePath) == 1) {
-            return array_key_exists($pathName, $arr) && !($this->emptyStringIsUndefined && $arr[$pathName] == '');
+            return array_key_exists($pathName, $arr) && !($this->emptyStringIsUndefined && $arr[$pathName] === '');
         }
 
         if (!array_key_exists($pathName, $arr)) {
