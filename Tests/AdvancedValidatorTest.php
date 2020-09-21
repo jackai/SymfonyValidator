@@ -25,17 +25,15 @@ class AdvancedValidatorTest extends TestCase
             $this->assertEquals(0, count($annotation->$v));
         }
 
-        $nullValue = ['requireFormErrorCode', 'requireQueryErrorCode'];
+        $nullValue = ['requireFormCode', 'requireQueryCode'];
 
         foreach ($nullValue as $k => $v) {
             $this->assertEquals(null, $annotation->$v);
         }
 
-        $trueValue = ['throwOnValidateFail', 'throwOnMissingValidate', 'emptyStringIsUndefined'];
-
-        foreach ($trueValue as $k => $v) {
-            $this->assertEquals(true, $annotation->$v);
-        }
+        $this->assertEquals(true, $annotation->throwOnValidateFail);
+        $this->assertEquals(false, $annotation->throwOnMissingValidate);
+        $this->assertEquals(true, $annotation->emptyStringIsUndefined);
     }
 
     /**
@@ -50,10 +48,10 @@ class AdvancedValidatorTest extends TestCase
         $annotations = $annotationReader->getMethodAnnotation($reflectedMethod, AdvancedValidator::class);
 
         $this->assertEquals(false, $annotations->throwOnValidateFail);
-        $this->assertEquals(false, $annotations->throwOnMissingValidate);
+        $this->assertEquals(true, $annotations->throwOnMissingValidate);
         $this->assertEquals(false, $annotations->emptyStringIsUndefined);
-        $this->assertEquals(998, $annotations->requireQueryErrorCode);
-        $this->assertEquals(999, $annotations->requireFormErrorCode);
+        $this->assertEquals(998, $annotations->requireQueryCode);
+        $this->assertEquals(999, $annotations->requireFormCode);
         $this->assertEquals(['name'], $annotations->requireQuery);
         $this->assertEquals(['postParamName'], $annotations->requireForm);
         $this->assertEquals(
@@ -62,23 +60,23 @@ class AdvancedValidatorTest extends TestCase
                     'name' => 'name',
                     'rule' => 'Assert\Length',
                     'ruleOption' => ["min" => 1, "max" => 30],
-                    'errorCode' => '111',
-                    'errorMsg' => 'Invalid name',
+                    'code' => '111',
+                    'msg' => 'Invalid name',
                 ],
                 [
                     'name' => 'price',
                     'rule' => 'Assert\GreaterThan',
                     'ruleOption' => 0,
-                    'errorCode' => '112',
+                    'code' => '112',
                     'default' => '99999',
-                    'errorMsg' => 'Invalid price',
+                    'msg' => 'Invalid price',
                 ],
                 [
                     'name' => 'picture',
                     'rule' => 'Assert\Length',
                     'ruleOption' => ["min" => 1, "max" => 30],
-                    'errorCode' => '113',
-                    'errorMsg' => 'Invalid picture',
+                    'code' => '113',
+                    'msg' => 'Invalid picture',
                 ],
                 [
                     'name' => 'picture',
@@ -87,8 +85,8 @@ class AdvancedValidatorTest extends TestCase
                         "mode" => 'if',
                         "values" => ['price', '999'],
                     ],
-                    'errorCode' => '118',
-                    'errorMsg' => 'If price is 999, you should private picture.',
+                    'code' => '118',
+                    'msg' => 'If price is 999, you should private picture.',
                 ],
             ],
             $annotations->query
@@ -99,8 +97,8 @@ class AdvancedValidatorTest extends TestCase
                     'name' => 'postField',
                     'rule' => 'Assert\Length',
                     'ruleOption' => ["min" => 1, "max" => 30],
-                    'errorCode' => '111',
-                    'errorMsg' => 'Invalid post_field',
+                    'code' => '111',
+                    'msg' => 'Invalid post_field',
                 ],
             ],
             $annotations->form

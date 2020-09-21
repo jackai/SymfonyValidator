@@ -250,7 +250,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
 
         // 測試同一個欄位有多個驗證規則
         try {
-            $controller = 'Jackai\Validator\Tests\Fixtures\TestController::multiRulesAction';
+            $controller = 'Jackai\Validator\Tests\Fixtures\TestController::missingValidateAction';
             $request = new Request($query, $form, ['_controller' => $controller]);
             $mockEvent = $this->mockEvent($request);
             $listener->onKernelRequest($mockEvent);
@@ -258,12 +258,12 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals('Missing validate: test', $e->getMessage());
         }
 
-        $controller = 'Jackai\Validator\Tests\Fixtures\TestController::missingValidateAction';
-
         // 因為設定缺少驗證規則不擲出，所以可以通過
+        $controller = 'Jackai\Validator\Tests\Fixtures\TestController::multiRulesAction';
         $request = new Request($query, $form, ['_controller' => $controller]);
         $mockEvent = $this->mockEvent($request);
         $listener->onKernelRequest($mockEvent);
+
     }
 
     /**

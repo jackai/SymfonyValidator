@@ -23,13 +23,13 @@ services:
 ## Useage
 
 ### 驗證器參數說明
-* throwOnMissingValidate: 當帶入的參數不存在驗證列表時，是否拋出例外，預設為 `true`
+* throwOnMissingValidate: 當帶入的參數不存在驗證列表時，是否拋出例外，預設為 `false`
 * throwOnValidateFail: 當驗證失敗時，是否拋出例外，預設為 `true`
 * emptyStringIsUndefined: 帶入的參數為空字串時，是否當作未帶入參數處理，預設為 `true`
 * requireQuery: 在query中必填的欄位
 * requireForm: 在form中必填的欄位
-* requireQueryErrorCode: 當query中必填未填寫時，要拋出的錯誤代碼，預設為 `null`
-* requireFormErrorCode: 當form中必填未填寫時，要拋出的錯誤代碼，預設為 `null`
+* requireQueryCode: 當query中必填未填寫時，要拋出的錯誤代碼，預設為 `null`
+* requireFormCode: 當form中必填未填寫時，要拋出的錯誤代碼，預設為 `null`
 * query: 在query中欄位驗證規則
 * form: 在form中欄位驗證規則
 
@@ -41,8 +41,9 @@ services:
     * 自製的symfony的驗證器: 在參數中寫入Class位置即可，例如： `App\Validator\Constraints\ContainsAlphanumeric`，詳細說明可參考symfony官方網站 (https://symfony.com/doc/current/validation/custom_constraint.html)
     * require: 特殊規則的必填欄位
 * ruleOption: 驗證規則的參數設置
-* errorCode: 條件驗證失敗時回傳的錯誤代碼，預設為 `null`
-* errorMsg: 條件驗證失敗時回傳的錯誤訊息，預設為 `驗證規則提供的錯誤訊息`
+* code: 條件驗證失敗時回傳的錯誤代碼，預設為 `null`
+* msg: 條件驗證失敗時回傳的錯誤訊息，預設為 `驗證規則提供的錯誤訊息`
+* require: 是否為必填欄位，預設值為 `false`
 
 ### 特殊規則的必填欄位
 當 `"rule" = "require"` 時，為驗證特殊必填狀況，特殊必填情況符合時 `name` 欄位為必填。
@@ -72,17 +73,17 @@ class TestController extends AbstractController
       *     throwOnValidateFail = true,
       *     emptyStringIsUndefined = true,
       *     requireQuery = {"name"},
-      *     requireQueryErrorCode = 998,
+      *     requireQueryCode = 998,
       *     query = {
-      *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-      *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-      *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
-      *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
+      *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+      *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+      *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
+      *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
       *     },
       *     requireForm = {"postParamName"},
-      *     requireFormErrorCode = 999,
+      *     requireFormCode = 999,
       *     form = {
-      *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid post_field"},
+      *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid post_field"},
       *     }
       * )
       */
@@ -114,18 +115,18 @@ class TestController extends AbstractController
       *     throwOnValidateFail = true,
       *     emptyStringIsUndefined = true,
       *     requireQuery = {"name"},
-      *     requireQueryErrorCode = 998,
+      *     requireQueryCode = 998,
       *     query = {
-      *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-+      *         {"name" = "name", "rule" = "App\Validator\Constraints\ContainsAlphanumeric", "errorCode" = "114", "errorMsg" = "Name should be alphanumeric"},
-      *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-      *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
-      *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
+      *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
++      *         {"name" = "name", "rule" = "App\Validator\Constraints\ContainsAlphanumeric", "code" = "114", "msg" = "Name should be alphanumeric"},
+      *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+      *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
+      *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
       *     },
       *     requireForm = {"postParamName"},
-      *     requireFormErrorCode = 999,
+      *     requireFormCode = 999,
       *     form = {
-      *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid post_field"},
+      *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid post_field"},
       *     }
       * )
       */

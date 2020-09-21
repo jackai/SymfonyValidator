@@ -33,6 +33,11 @@ class RequestAdvancedValidateListener
         $requset = $event->getRequest();
         $controller = $requset->attributes->get('_controller');
         list($controllerService, $controllerMethod) = explode('::', $controller);
+
+        if (!class_exists($controllerService)) {
+            return;
+        }
+
         $reflectedMethod = new \ReflectionMethod(new $controllerService(), $controllerMethod);
 
         // the annotations
@@ -49,10 +54,20 @@ class RequestAdvancedValidateListener
         $this->emptyStringIsUndefined = $annotations->emptyStringIsUndefined;
 
         // 驗證必填欄位
-        $this->checkRequired($annotations->requireForm, $requset->request->all(), $annotations->requireFormErrorCode);
-        $this->checkRequired($annotations->requireQuery, $requset->query->all(), $annotations->requireQueryErrorCode);
+        $this->checkRequired($annotations->requireForm, $requset->request->all(), $annotations->requireFormCode);
+        $this->checkRequired($annotations->requireQuery, $requset->query->all(), $annotations->requireQueryCode);
 
         foreach ($annotations->form as $k => $v) {
+            if (array_key_exists('require', $v) && $v['require']) {
+                $tmp = $v;
+                unset($tmp['ruleOption']);
+                array_push($this->ruleRequireForm, $tmp);
+            }
+
+            if (!array_key_exists('rule', $v)) {
+                continue;
+            }
+
             if ($v['rule'] == 'require') {
                 array_push($this->ruleRequireForm, $v);
                 continue;
@@ -66,6 +81,16 @@ class RequestAdvancedValidateListener
         }
 
         foreach ($annotations->query as $k => $v) {
+            if (array_key_exists('require', $v) && $v['require']) {
+                $tmp = $v;
+                unset($tmp['ruleOption']);
+                array_push($this->ruleRequireQuery, $tmp);
+            }
+
+            if (!array_key_exists('rule', $v)) {
+                continue;
+            }
+
             if ($v['rule'] == 'require') {
                 array_push($this->ruleRequireQuery, $v);
                 continue;
@@ -96,15 +121,15 @@ class RequestAdvancedValidateListener
      *
      * @param array $requiredColumn
      * @param array $data
-     * @param integer $errorCode
+     * @param integer $code
      * @throws \InvalidArgumentException
      */
-    private function checkRequired($requiredColumn, $data, $errorCode)
+    private function checkRequired($requiredColumn, $data, $code)
     {
         if ($this->throwOnValidateFail) {
             foreach ($requiredColumn as $path) {
                 if (!$this->recursiveValidateRequired($data, $path)) {
-                    throw new \InvalidArgumentException("$path is required", $errorCode);
+                    throw new \InvalidArgumentException("$path is required", $code);
                 }
             }
         }
@@ -126,13 +151,17 @@ class RequestAdvancedValidateListener
                 throw new \ErrorException('name is require: ' . json_encode($rule));
             }
 
-            if (!array_key_exists('ruleOption', $rule)) {
-                throw new \ErrorException('ruleOption is require: ' . json_encode($rule));
-            }
-
             // 如果目標必填欄位已經填寫了，那就略過
             if ($this->recursiveValidateRequired($data, $rule['name'])) {
                 continue;
+            }
+
+            $code = isset($rule['code']) ? $rule['code'] : null;
+            $msg = isset($rule['msg']) ? $rule['msg'] : "{$rule['name']} is required";
+
+            // 如果沒有驗證規格，那就是直接必填
+            if (!array_key_exists('ruleOption', $rule)) {
+                throw new \InvalidArgumentException($msg, $code);
             }
 
             $ruleOption = $rule['ruleOption'];
@@ -146,9 +175,6 @@ class RequestAdvancedValidateListener
             if (!is_array($ruleOption['values']) || count($ruleOption['values']) < 1) {
                 throw new \ErrorException('ruleOption.value error, At least one value :' . json_encode($rule));
             }
-
-            $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
-            $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : "{$rule['name']} is required";
 
             switch ($ruleOption['mode']) {
                 case 'if':
@@ -168,7 +194,7 @@ class RequestAdvancedValidateListener
                     $fieldValue = $this->getValue($data, $targetField);
 
                     if(in_array($fieldValue, $checkValue)) {
-                        throw new \InvalidArgumentException($errorMsg, $errorCode);
+                        throw new \InvalidArgumentException($msg, $code);
                     }
 
                     break;
@@ -176,7 +202,7 @@ class RequestAdvancedValidateListener
                 case 'with':
                     foreach ($ruleOption['values'] as $checkValue) {
                         if ($this->recursiveValidateRequired($data, $checkValue)) {
-                            throw new \InvalidArgumentException($errorMsg, $errorCode);
+                            throw new \InvalidArgumentException($msg, $code);
                         }
                     }
 
@@ -192,7 +218,7 @@ class RequestAdvancedValidateListener
                     }
 
                     if (count($ruleOption['values']) == $count) {
-                        throw new \InvalidArgumentException($errorMsg, $errorCode);
+                        throw new \InvalidArgumentException($msg, $code);
                     }
 
                     break;
@@ -200,7 +226,7 @@ class RequestAdvancedValidateListener
                 case 'without':
                     foreach ($ruleOption['values'] as $checkValue) {
                         if (!$this->recursiveValidateRequired($data, $checkValue)) {
-                            throw new \InvalidArgumentException($errorMsg, $errorCode);
+                            throw new \InvalidArgumentException($msg, $code);
                         }
                     }
 
@@ -216,7 +242,7 @@ class RequestAdvancedValidateListener
                     }
 
                     if ($count == 0) {
-                        throw new \InvalidArgumentException($errorMsg, $errorCode);
+                        throw new \InvalidArgumentException($msg, $code);
                     }
 
                     break;
@@ -290,10 +316,10 @@ class RequestAdvancedValidateListener
                 $errors = $validator->validate($v, new $ruleClass($ruleOption));
 
                 if (count($errors) > 0 && $this->throwOnValidateFail) {
-                    $errorCode = isset($rule['errorCode']) ? $rule['errorCode'] : null;
-                    $errorMsg = isset($rule['errorMsg']) ? $rule['errorMsg'] : $path . '-' . $errors[0]->getMessage();
+                    $code = isset($rule['code']) ? $rule['code'] : null;
+                    $msg = isset($rule['msg']) ? $rule['msg'] : $path . '-' . $errors[0]->getMessage();
 
-                    throw new \InvalidArgumentException($errorMsg, $errorCode);
+                    throw new \InvalidArgumentException($msg, $code);
                 }
             }
         }

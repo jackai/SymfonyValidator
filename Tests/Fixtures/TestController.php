@@ -15,7 +15,7 @@ class TestController extends AbstractController
      *     emptyStringIsUndefined = true,
      *     requireQuery = {"name"},
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
      *     }
      * )
      */
@@ -30,8 +30,8 @@ class TestController extends AbstractController
      *     emptyStringIsUndefined = true,
      *     requireQuery = {"name", "price"},
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "errorMsg" = "Invalid price"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid price"},
      *     }
      * )
      */
@@ -47,7 +47,7 @@ class TestController extends AbstractController
      *     emptyStringIsUndefined = true,
      *     requireForm = {"name"},
      *     form = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
      *     }
      * )
      */
@@ -62,8 +62,8 @@ class TestController extends AbstractController
      *     emptyStringIsUndefined = true,
      *     requireForm = {"name", "price"},
      *     form = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "errorMsg" = "Invalid price"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid price"},
      *     }
      * )
      */
@@ -73,20 +73,20 @@ class TestController extends AbstractController
     }
 
     /**
-     * @Route("/requireQueryErrorCode")
+     * @Route("/requireQueryCode")
      * @AdvancedValidator(
      *     requireQuery = {"name"},
-     *     requireQueryErrorCode = 998,
+     *     requireQueryCode = 998,
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
      *     },
      *     requireForm = {"postField"},
-     *     requireFormErrorCode = 999,
+     *     requireFormCode = 999,
      *     form = {
-     *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid post_field"},
+     *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid post_field"},
      *     }
      * )
      */
@@ -99,9 +99,9 @@ class TestController extends AbstractController
      * @Route("/multiRulesA")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "errorMsg" = "Invalid price"},
-     *         {"name" = "price", "rule" = "Assert\LessThan", "ruleOption" = "99", "errorCode" = "113", "errorMsg" = "Invalid price"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid price"},
+     *         {"name" = "price", "rule" = "Assert\LessThan", "ruleOption" = "99", "code" = "113", "msg" = "Invalid price"},
      *     }
      * )
      */
@@ -113,7 +113,7 @@ class TestController extends AbstractController
     /**
      * @Route("/missingValidate")
      * @AdvancedValidator(
-     *     throwOnMissingValidate = false,
+     *     throwOnMissingValidate = true,
      * )
      */
     public function missingValidateAction(Request $request)
@@ -126,7 +126,7 @@ class TestController extends AbstractController
      * @AdvancedValidator(
      *     throwOnValidateFail = false,
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
      *     }
      * )
      */
@@ -140,7 +140,7 @@ class TestController extends AbstractController
      * @AdvancedValidator(
      *     emptyStringIsUndefined = false,
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
      *     }
      * )
      */
@@ -155,7 +155,7 @@ class TestController extends AbstractController
      *     emptyStringIsUndefined = false,
      *     requireQuery = {"name"},
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
      *     }
      * )
      */
@@ -168,8 +168,8 @@ class TestController extends AbstractController
      * @Route("/requireIf")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
      *     },
      * )
      */
@@ -182,8 +182,8 @@ class TestController extends AbstractController
      * @Route("/requireIfWithMultiValue")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999", "9999"}}, "errorCode" = "118", "errorMsg" = "If price is 999 or 9999, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999", "9999"}}, "code" = "118", "msg" = "If price is 999 or 9999, you should private picture."},
      *     }
      * )
      */
@@ -196,8 +196,8 @@ class TestController extends AbstractController
      * @Route("/requireWith")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "with", "values" = {"price"}}, "errorCode" = "118", "errorMsg" = "If private price, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "with", "values" = {"price"}}, "code" = "118", "msg" = "If private price, you should private picture."},
      *     }
      * )
      */
@@ -210,9 +210,9 @@ class TestController extends AbstractController
      * @Route("/requireWithMultiValue")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "with", "values" = {"price", "name"}}, "errorCode" = "119", "errorMsg" = "If private price or name, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "with", "values" = {"price", "name"}}, "code" = "119", "msg" = "If private price or name, you should private picture."},
      *     }
      * )
      */
@@ -225,8 +225,8 @@ class TestController extends AbstractController
      * @Route("/requireWith")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withAll", "values" = {"price"}}, "errorCode" = "118", "errorMsg" = "If private price, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withAll", "values" = {"price"}}, "code" = "118", "msg" = "If private price, you should private picture."},
      *     }
      * )
      */
@@ -239,9 +239,9 @@ class TestController extends AbstractController
      * @Route("/requireWithMultiValue")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withAll", "values" = {"price", "name"}}, "errorCode" = "119", "errorMsg" = "If private price or name, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withAll", "values" = {"price", "name"}}, "code" = "119", "msg" = "If private price or name, you should private picture."},
      *     }
      * )
      */
@@ -254,8 +254,8 @@ class TestController extends AbstractController
      * @Route("/requireWithout")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "without", "values" = {"price"}}, "errorCode" = "118", "errorMsg" = "If don't private price, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "without", "values" = {"price"}}, "code" = "118", "msg" = "If don't private price, you should private picture."},
      *     }
      * )
      */
@@ -268,9 +268,9 @@ class TestController extends AbstractController
      * @Route("/requireWithoutMultiValue")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "without", "values" = {"price", "name"}}, "errorCode" = "119", "errorMsg" = "If don't private price or name, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "without", "values" = {"price", "name"}}, "code" = "119", "msg" = "If don't private price or name, you should private picture."},
      *     }
      * )
      */
@@ -283,8 +283,8 @@ class TestController extends AbstractController
      * @Route("/requireWith")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withoutAll", "values" = {"price"}}, "errorCode" = "118", "errorMsg" = "If don't private price, you should private picture."},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withoutAll", "values" = {"price"}}, "code" = "118", "msg" = "If don't private price, you should private picture."},
      *     }
      * )
      */
@@ -297,9 +297,9 @@ class TestController extends AbstractController
      * @Route("/requireWithMultiValue")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withoutAll", "values" = {"price", "name"}}, "errorCode" = "119", "errorMsg" = "If don't private price and name, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 5, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "withoutAll", "values" = {"price", "name"}}, "code" = "119", "msg" = "If don't private price and name, you should private picture."},
      *     }
      * )
      */
@@ -312,7 +312,7 @@ class TestController extends AbstractController
      * @Route("/default")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"}
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"}
      *     }
      * )
      */
@@ -325,7 +325,7 @@ class TestController extends AbstractController
      * @Route("/customValidator")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "errorCode" = "110", "errorMsg" = "Invalid name"}
+     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "code" = "110", "msg" = "Invalid name"}
      *     }
      * )
      */
@@ -339,9 +339,9 @@ class TestController extends AbstractController
      * @AdvancedValidator(
      *     requireQuery = {"name", "price.shop"},
      *     query = {
-     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "errorCode" = "110", "errorMsg" = "Invalid name"},
-     *         {"name" = "price.shop", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "111", "errorMsg" = "Invalid shop price"},
-     *         {"name" = "price.promote", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "errorMsg" = "Invalid promote price"}
+     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "code" = "110", "msg" = "Invalid name"},
+     *         {"name" = "price.shop", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "111", "msg" = "Invalid shop price"},
+     *         {"name" = "price.promote", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid promote price"}
      *     }
      * )
      */
@@ -354,10 +354,10 @@ class TestController extends AbstractController
      * @Route("/struct")
      * @AdvancedValidator(
      *     query = {
-     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "errorCode" = "110", "errorMsg" = "Invalid name"},
-     *         {"name" = "price.shop", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "111", "errorMsg" = "Invalid shop price"},
-     *         {"name" = "price.promote", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "errorMsg" = "Invalid promote price"},
-     *         {"name" = "price.background", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "default" = "red", "errorCode" = "113", "errorMsg" = "Invalid background"},
+     *         {"name" = "name", "rule" = "Jackai\Validator\Tests\Fixtures\CustomValidator\Alphanumeric", "code" = "110", "msg" = "Invalid name"},
+     *         {"name" = "price.shop", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "111", "msg" = "Invalid shop price"},
+     *         {"name" = "price.promote", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid promote price"},
+     *         {"name" = "price.background", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "default" = "red", "code" = "113", "msg" = "Invalid background"},
      *     }
      * )
      */
@@ -369,21 +369,21 @@ class TestController extends AbstractController
     /**
      * @Route("/test")
      * @AdvancedValidator(
-     *     throwOnMissingValidate = false,
+     *     throwOnMissingValidate = true,
      *     throwOnValidateFail = false,
      *     emptyStringIsUndefined = false,
      *     requireQuery = {"name"},
-     *     requireQueryErrorCode = 998,
+     *     requireQueryCode = 998,
      *     query = {
-     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid name"},
-     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "errorCode" = "112", "default" = "99999", "errorMsg" = "Invalid price"},
-     *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "113", "errorMsg" = "Invalid picture"},
-     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "errorCode" = "118", "errorMsg" = "If price is 999, you should private picture."},
+     *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
+     *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+     *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
+     *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
      *     },
      *     requireForm = {"postParamName"},
-     *     requireFormErrorCode = 999,
+     *     requireFormCode = 999,
      *     form = {
-     *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "errorCode" = "111", "errorMsg" = "Invalid post_field"},
+     *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid post_field"},
      *     }
      * )
      */
