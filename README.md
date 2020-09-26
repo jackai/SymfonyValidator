@@ -16,6 +16,20 @@ composer require jackai/symfony-validator
 ```
 services:
     Jackai\Validator\RequestAdvancedValidateListener:
+        arguments:
+          - {
+            doctrine: "@doctrine",
+            ruleAlias: {
+              "Assert": "Symfony\\Component\\Validator\\Constraints",
+              "My": "App\\Validator"
+            },
+            requireFormCode: null,
+            requireQueryCode: null,
+            throwOnValidateFail: true,
+            throwOnMissingValidate: false,
+            emptyStringIsUndefined: true,
+            shortErrorMsg: false,
+          }
         tags:
             - { name: kernel.event_listener, event: kernel.request }
 ```
@@ -119,6 +133,148 @@ class TestController extends AbstractController
       *     query = {
       *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
 +      *         {"name" = "name", "rule" = "App\Validator\Constraints\ContainsAlphanumeric", "code" = "114", "msg" = "Name should be alphanumeric"},
+      *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
+      *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
+      *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},
+      *     },
+      *     requireForm = {"postParamName"},
+      *     requireFormCode = 999,
+      *     form = {
+      *         {"name" = "postField", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid post_field"},
+      *     }
+      * )
+      */
+    public function test(Request $request)
+    {
+        // do something
+    }
+}
+```
+
+### Create advanced custom validation
+
+1. Use Jackai\Validator\Constraint
+1. You can get rawValues and doctrine in constraint
+1. Don't forget to add alias: `"My": "App\\Validator"`
+1. And you can use `"rule" = "My\DataUnique"`
+
+src\Validator\DataUnique.php
+```
+namespace App\Validator;
+
+use Jackai\Validator\Constraint;
+
+class DataUnique extends Constraint
+{
+    public $message = 'The data "{{ string }}" is duplicate.';
+    public $options = null;
+    public $entity = null;
+    public $rule = null;
+
+    public function __construct($options = null)
+    {
+        $this->options = $options;
+        parent::__construct($options);
+    }
+}
+
+```
+
+src\Validator\DataUniqueValidator.php
+```
+namespace App\Validator;
+
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+
+class DataUniqueValidator extends ConstraintValidator
+{
+   public function validate($value, Constraint $constraint)
+   {
+       if (!$constraint instanceof DataUnique) {
+           throw new UnexpectedTypeException($constraint, DataUnique::class);
+       }
+
+       if ($this->checkDataBase($constraint)) {
+           $this->context->buildViolation($constraint->message)
+               ->setParameter('{{ string }}', $value)
+               ->addViolation();
+       }
+   }
+
+   private function checkDataBase(DataUnique $constraint)
+   {
+       $ruleOption = $constraint->options;
+       foreach (['entity', 'rule'] as $k => $v) {
+           if (!array_key_exists($v, $ruleOption)) {
+               throw new \RuntimeException("ruleOption.{$v} is require.");
+           }
+       }
+
+       $entity = $ruleOption['entity'];
+       $rule = $ruleOption['rule'];
+       $values = $constraint->rawValues;
+       $doctrine = $constraint->doctrine;
+       $em = array_key_exists('em', $ruleOption) ? $ruleOption['em'] : 'default';
+       $search = [];
+
+       foreach ($rule as $k => $v) {
+           if (strncasecmp($v, ":", 1) === 0) {
+               $search[$k] = array_key_exists($k, $values) ? $values[$k] : null;
+           }
+
+           if (strncasecmp($v, ":", 1) !== 0) {
+               $search[$k] = $v;
+           }
+
+           $search[$k] = str_replace('\:', ':', $search[$k]);
+       }
+
+       $data = $doctrine->getManager($em)->getRepository("App\\Entity\\{$entity}")->findOneBy($search);
+
+       return $data !== null;
+   }
+}
+```
+
+config/service.yaml
+```
+    Jackai\Validator\RequestAdvancedValidateListener:
+        arguments:
+          - {
+            doctrine: "@doctrine",
+            ruleAlias: {
+              "Assert": "Symfony\\Component\\Validator\\Constraints",
+              "My": "App\\Validator"
+            },
+          }
+        tags:
+            - { name: kernel.event_listener, event: kernel.request }
+```
+
+src/Controller/TestController.php
+```
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Jackai\Validator\AdvancedValidator;
+
+class TestController extends AbstractController
+{
+     /**
+      * @Route("/test")
+      * @AdvancedValidator(
+      *     throwOnMissingValidate = true,
+      *     throwOnValidateFail = true,
+      *     emptyStringIsUndefined = true,
+      *     requireQuery = {"name"},
+      *     requireQueryCode = 998,
+      *     query = {
+      *         {"name" = "name", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "111", "msg" = "Invalid name"},
++      *         {"name" = "name", "rule" = "My\DataUnique", "ruleOption" = {"entity" = "Product", "rule" = {"name" = ":name"}}, "errorCode" = "119"},
       *         {"name" = "price", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "default" = "99999", "msg" = "Invalid price"},
       *         {"name" = "picture", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "code" = "113", "msg" = "Invalid picture"},
       *         {"name" = "picture", "rule" = "require", "ruleOption" = {"mode" = "if", "values" = {"price", "999"}}, "code" = "118", "msg" = "If price is 999, you should private picture."},

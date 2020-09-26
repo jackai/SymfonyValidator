@@ -25,15 +25,11 @@ class AdvancedValidatorTest extends TestCase
             $this->assertEquals(0, count($annotation->$v));
         }
 
-        $nullValue = ['requireFormCode', 'requireQueryCode'];
+        $nullValue = ['requireFormCode', 'requireQueryCode', 'throwOnValidateFail', 'throwOnMissingValidate', 'emptyStringIsUndefined', 'shortErrorMsg'];
 
         foreach ($nullValue as $k => $v) {
             $this->assertEquals(null, $annotation->$v);
         }
-
-        $this->assertEquals(true, $annotation->throwOnValidateFail);
-        $this->assertEquals(false, $annotation->throwOnMissingValidate);
-        $this->assertEquals(true, $annotation->emptyStringIsUndefined);
     }
 
     /**
@@ -52,6 +48,7 @@ class AdvancedValidatorTest extends TestCase
         $this->assertEquals(false, $annotations->emptyStringIsUndefined);
         $this->assertEquals(998, $annotations->requireQueryCode);
         $this->assertEquals(999, $annotations->requireFormCode);
+        $this->assertEquals(true, $annotations->shortErrorMsg);
         $this->assertEquals(['name'], $annotations->requireQuery);
         $this->assertEquals(['postParamName'], $annotations->requireForm);
         $this->assertEquals(

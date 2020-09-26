@@ -3,18 +3,59 @@
 namespace Jackai\Validator;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Validator\Validation;
 
+/**
+ * Class RequestAdvancedValidateListener
+ *
+ * @package Jackai\Validator
+ */
 class RequestAdvancedValidateListener
 {
-    private $throwOnValidateFail;
-    private $throwOnMissingValidate;
-    private $emptyStringIsUndefined;
+    private $requireFormCode;
+    private $requireQueryCode;
+    private $throwOnValidateFail = true;
+    private $throwOnMissingValidate = false;
+    private $emptyStringIsUndefined = true;
+    private $shortErrorMsg = false;
+    private $ruleAlias = [];
+    private $doctrine;
     private $formRule = [];
     private $queryRule = [];
     private $ruleRequireForm = [];
     private $ruleRequireQuery = [];
+
+    /**
+     * RequestAdvancedValidateListener constructor.
+     * @param ManagerRegistry|null $doctrine
+     * @param bool $throwOnValidateFail
+     * @param bool $throwOnMissingValidate
+     * @param bool $emptyStringIsUndefined
+     * @param bool $shortErrorMsg
+     * @param null $requireFormCode
+     * @param null $requireQueryCode
+     * @param array $ruleAlias
+     */
+    function __construct($options) {
+        $setters = [
+            'requireFormCode',
+            'requireQueryCode',
+            'throwOnValidateFail',
+            'throwOnMissingValidate',
+            'emptyStringIsUndefined',
+            'shortErrorMsg',
+            'ruleAlias',
+            'doctrine',
+        ];
+
+        foreach ($setters as $k => $v) {
+            if (array_key_exists($v, $options)) {
+                $this->$v = $options[$v];
+            }
+        }
+    }
 
     /**
      * @param RequestEvent $event
@@ -49,13 +90,15 @@ class RequestAdvancedValidateListener
             return;
         }
 
-        $this->throwOnValidateFail = $annotations->throwOnValidateFail;
-        $this->throwOnMissingValidate = $annotations->throwOnMissingValidate;
-        $this->emptyStringIsUndefined = $annotations->emptyStringIsUndefined;
+        foreach ($annotations->setters as $k => $v) {
+            if ($annotations->$v !== null) {
+                $this->$v = $annotations->$v;
+            }
+        }
 
         // 驗證必填欄位
-        $this->checkRequired($annotations->requireForm, $requset->request->all(), $annotations->requireFormCode);
-        $this->checkRequired($annotations->requireQuery, $requset->query->all(), $annotations->requireQueryCode);
+        $this->checkRequired($annotations->requireForm, $requset->request->all(), $this->requireFormCode);
+        $this->checkRequired($annotations->requireQuery, $requset->query->all(), $this->requireQueryCode);
 
         foreach ($annotations->form as $k => $v) {
             if (array_key_exists('require', $v) && $v['require']) {
@@ -157,7 +200,8 @@ class RequestAdvancedValidateListener
             }
 
             $code = isset($rule['code']) ? $rule['code'] : null;
-            $msg = isset($rule['msg']) ? $rule['msg'] : "{$rule['name']} is required";
+            $defaultMsg = $this->shortErrorMsg ? "Invalid {$rule['name']}" : "{$rule['name']} is required";
+            $msg = isset($rule['msg']) ? $rule['msg'] : $defaultMsg;
 
             // 如果沒有驗證規格，那就是直接必填
             if (!array_key_exists('ruleOption', $rule)) {
@@ -275,17 +319,19 @@ class RequestAdvancedValidateListener
     /**
      * 遞迴驗證資料
      *
-     * @param $rules
-     * @param $value
+     * @param array $rules
+     * @param mixed $value
      * @param string $path
+     * @param array $rawValues
      * @throws \InvalidArgumentException
      */
-    private function recursiveValidate($rules, $value, $path = '')
+    private function recursiveValidate($rules, $value, $path = '', $rawValues = [])
     {
         if (is_array($value) && !isset($value[0])) {
             foreach ($value as $k => $v) {
                 $recursivePath = $path == '' ? $k : "$path.$k";
-                $this->recursiveValidate($rules, $v, $recursivePath);
+                $rawValues = $rawValues ? $rawValues : $value;
+                $this->recursiveValidate($rules, $v, $recursivePath, $rawValues);
             }
             return;
         }
@@ -303,8 +349,15 @@ class RequestAdvancedValidateListener
         foreach ($columnRule as $rule) {
             $validator = Validation::createValidator();
 
-            $ruleOption = array_key_exists('ruleOption', $rule) ? $rule['ruleOption'] : null;
-            $ruleClass = str_replace('Assert', 'Symfony\Component\Validator\Constraints', $rule['rule']);
+            $ruleOption = array_key_exists('ruleOption', $rule) ? $rule['ruleOption'] : [];
+            $ruleClass = $rule['rule'];
+
+            foreach ($this->ruleAlias as $k => $v) {
+                if (strncasecmp($ruleClass, "$k\\", strlen($k) + 1) === 0) {
+                    $ruleClass = str_replace($k, $v, $ruleClass);
+                    break;
+                }
+            }
 
             $value = is_array($value) ? $value : [$value];
 
@@ -313,11 +366,20 @@ class RequestAdvancedValidateListener
                     continue;
                 }
 
-                $errors = $validator->validate($v, new $ruleClass($ruleOption));
+                $constraint =  new $ruleClass($ruleOption);
+
+                if ($constraint instanceof \Jackai\Validator\Constraint) {
+                    $constraint->rawValues = $rawValues;
+                    $constraint->doctrine = $this->doctrine;
+                }
+
+                $errors = $validator->validate($v, $constraint);
 
                 if (count($errors) > 0 && $this->throwOnValidateFail) {
+                    $defaultMsg = $this->shortErrorMsg ? "Invalid $path" : "Invalid $path:" . $errors[0]->getMessage();
+
                     $code = isset($rule['code']) ? $rule['code'] : null;
-                    $msg = isset($rule['msg']) ? $rule['msg'] : $path . '-' . $errors[0]->getMessage();
+                    $msg = isset($rule['msg']) ? $rule['msg'] : $defaultMsg;
 
                     throw new \InvalidArgumentException($msg, $code);
                 }
