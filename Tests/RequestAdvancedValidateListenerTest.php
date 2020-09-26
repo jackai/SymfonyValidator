@@ -17,7 +17,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequiredQueryFail()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         // 當一個欄位必填卻沒帶入時會擲出 InvalidArgumentException
         try {
@@ -75,7 +75,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequiredFormFail()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         // 當一個欄位必填卻沒帶入時會擲出 InvalidArgumentException
         try {
@@ -132,7 +132,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireQueryAndForm()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::requireQueryAndFormAction';
 
         // 當一個Query及Form欄位必填卻沒帶入時Form會先擲出 InvalidArgumentException
@@ -173,7 +173,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testMultiRules()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::multiRulesAction';
 
         // 因為沒有指定必填，所以可以通過
@@ -243,7 +243,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testMissingValidate()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['test' => 'test'];
         $form = [];
@@ -254,16 +254,17 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $request = new Request($query, $form, ['_controller' => $controller]);
             $mockEvent = $this->mockEvent($request);
             $listener->onKernelRequest($mockEvent);
+            $this->assertEquals(true, false);
         } catch (\InvalidArgumentException $e) {
             $this->assertEquals('Missing validate: test', $e->getMessage());
         }
 
         // 因為設定缺少驗證規則不擲出，所以可以通過
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::multiRulesAction';
+        $listener = $this->createListener();
         $request = new Request($query, $form, ['_controller' => $controller]);
         $mockEvent = $this->mockEvent($request);
         $listener->onKernelRequest($mockEvent);
-
     }
 
     /**
@@ -275,7 +276,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testThrowOnValidateFail()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::throwOnValidateFailAction';
         $query = ['name' => '1234'];
         $request = new Request($query, [], ['_controller' => $controller]);
@@ -293,7 +294,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testEmptyStringIsUndefined()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['name' => ''];
         $form = [];
@@ -346,7 +347,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireIf()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1];
         $form = [];
@@ -368,7 +369,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals(118, $e->getCode());
         }
 
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1000];
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::requireIfWithMultiValueAction';
@@ -398,7 +399,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireWith()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = [];
         $form = [];
@@ -420,7 +421,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals(118, $e->getCode());
         }
 
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = [];
         $form = [];
@@ -472,7 +473,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireWithAll()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = [];
         $form = [];
@@ -494,7 +495,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals(118, $e->getCode());
         }
 
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1];
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::requireWithAllMultiValueAction';
@@ -530,7 +531,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireWithout()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1];
         $form = [];
@@ -551,7 +552,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals(118, $e->getCode());
         }
 
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1, 'name' => 'test123'];
         $form = [];
@@ -603,7 +604,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testRequireWithoutAll()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1];
         $form = [];
@@ -624,7 +625,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             $this->assertEquals(118, $e->getCode());
         }
 
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['price' => 1, 'name' => 'test123'];
         $form = [];
@@ -665,7 +666,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     public function testDefault()
     {
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::defaultAction';
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $mockRequest = $this
             ->getMockBuilder('Symfony\Component\HttpFoundation\Request')
@@ -714,7 +715,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testCustomValidator()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['name' => 'aabbcc1234567890'];
         $form = [];
@@ -745,7 +746,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testArrayValue()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['name' => ['aabbcc1234567890', '123abc']];
         $form = [];
@@ -772,7 +773,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     public function testStruct()
     {
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $query = ['name' => ['aabbcc1234567890'], 'price' => ['shop' => 100]];
         $form = [];
@@ -828,7 +829,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     public function testStructDefault()
     {
         $controller = 'Jackai\Validator\Tests\Fixtures\TestController::structDefaultAction';
-        $listener = new RequestAdvancedValidateListener();
+        $listener = $this->createListener();
 
         $mockRequest = $this
             ->getMockBuilder('Symfony\Component\HttpFoundation\Request')
@@ -890,5 +891,28 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             ->willReturn(true);
 
         return $mockEvent;
+    }
+
+    /**
+     * 建立Listener
+     *
+     * @param array $options 設定參數
+     * @return RequestAdvancedValidateListener
+     */
+    private function createListener($options = [])
+    {
+        $defaultOptions = [
+            'ruleAlias' => [
+                "Assert" => "Symfony\\Component\\Validator\\Constraints",
+            ],
+        ];
+
+        if (!$options) {
+            $options = $defaultOptions;
+        }
+
+        $listener = new RequestAdvancedValidateListener($options);
+
+        return $listener;
     }
 }

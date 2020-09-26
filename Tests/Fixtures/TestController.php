@@ -372,6 +372,7 @@ class TestController extends AbstractController
      *     throwOnMissingValidate = true,
      *     throwOnValidateFail = false,
      *     emptyStringIsUndefined = false,
+     *     shortErrorMsg = true,
      *     requireQuery = {"name"},
      *     requireQueryCode = 998,
      *     query = {

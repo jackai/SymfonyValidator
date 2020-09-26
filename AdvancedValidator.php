@@ -3,7 +3,12 @@
 namespace Jackai\Validator;
 
 /**
+ * Class AdvancedValidator
+ *
+ * @package Jackai\Validator
+ *
  * @Annotation
+ * @Target({"METHOD"})
  */
 class AdvancedValidator
 {
@@ -11,14 +16,22 @@ class AdvancedValidator
     public $query = [];
     public $requireForm = [];
     public $requireQuery = [];
-    public $requireFormCode = 0;
-    public $requireQueryCode = 0;
-    public $throwOnValidateFail = true;
-    public $throwOnMissingValidate = false;
-    public $emptyStringIsUndefined = true;
+    public $requireFormCode;
+    public $requireQueryCode;
+    public $throwOnValidateFail;
+    public $throwOnMissingValidate;
+    public $emptyStringIsUndefined;
+    public $shortErrorMsg;
 
-    private $arraySetters = ['form', 'query', 'requireForm', 'requireQuery'];
-    private $setters = ['requireFormCode', 'requireQueryCode', 'throwOnValidateFail', 'throwOnMissingValidate', 'emptyStringIsUndefined'];
+    public $arraySetters = ['form', 'query', 'requireForm', 'requireQuery'];
+    public $setters = [
+        'requireFormCode',
+        'requireQueryCode',
+        'throwOnValidateFail',
+        'throwOnMissingValidate',
+        'emptyStringIsUndefined',
+        'shortErrorMsg'
+    ];
 
     public function __construct(array $data)
     {
