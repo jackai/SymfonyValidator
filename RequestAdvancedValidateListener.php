@@ -71,8 +71,8 @@ class RequestAdvancedValidateListener
             return;
         }
 
-        $requset = $event->getRequest();
-        $controller = $requset->attributes->get('_controller');
+        $request = $event->getRequest();
+        $controller = $request->attributes->get('_controller');
         list($controllerService, $controllerMethod) = explode('::', $controller);
 
         if (!class_exists($controllerService)) {
@@ -97,8 +97,8 @@ class RequestAdvancedValidateListener
         }
 
         // 驗證必填欄位
-        $this->checkRequired($annotations->requireForm, $requset->request->all(), $this->requireFormCode);
-        $this->checkRequired($annotations->requireQuery, $requset->query->all(), $this->requireQueryCode);
+        $this->checkRequired($annotations->requireForm, $request->request->all(), $this->requireFormCode);
+        $this->checkRequired($annotations->requireQuery, $request->query->all(), $this->requireQueryCode);
 
         foreach ($annotations->form as $k => $v) {
             if (array_key_exists('require', $v) && $v['require']) {
@@ -147,16 +147,16 @@ class RequestAdvancedValidateListener
         }
 
         // 檢查條件必填欄位
-        $this->ruleRequireCheck($this->ruleRequireForm, $requset->request->all());
-        $this->ruleRequireCheck($this->ruleRequireQuery, $requset->query->all());
+        $this->ruleRequireCheck($this->ruleRequireForm, $request->request->all());
+        $this->ruleRequireCheck($this->ruleRequireQuery, $request->query->all());
 
         // 填充預設值
-        $requset->request->replace($this->fillingData($this->formRule, $requset->request->all()));
-        $requset->query->replace($this->fillingData($this->queryRule, $requset->query->all()));
+        $request->request->replace($this->fillingData($this->formRule, $request->request->all()));
+        $request->query->replace($this->fillingData($this->queryRule, $request->query->all()));
 
         // 驗證欄位值
-        $this->recursiveValidate($this->formRule, $requset->request->all());
-        $this->recursiveValidate($this->queryRule, $requset->query->all());
+        $this->recursiveValidate($this->formRule, $request->request->all());
+        $this->recursiveValidate($this->queryRule, $request->query->all());
     }
 
     /**
