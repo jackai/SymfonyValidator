@@ -1,0 +1,75 @@
+version: 2.1
+
+jobs:
+  php7-symfony5:
+    docker:
+      - image: circleci/php:7.4-node-browsers
+    steps:
+      - checkout
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run:
+          name: Run composer install
+          command: composer require "symfony/symfony:^5.0" --dev --no-update && composer update --no-interaction
+      - run: php -v
+      - run: composer show | grep symfony/symfony
+      - run:
+          name: "phpunit"
+          command: "./vendor/phpunit/phpunit/phpunit --do-not-cache-result"
+
+  php7-symfony4:
+    docker:
+      - image: circleci/php:7.4-node-browsers
+    steps:
+      - checkout
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run:
+          name: Run composer install
+          command: composer require "symfony/symfony:^4.0" --dev --no-update && composer update --no-interaction
+      - run: php -v
+      - run: composer show | grep symfony/symfony
+      - run:
+          name: "phpunit"
+          command: "./vendor/phpunit/phpunit/phpunit --do-not-cache-result"
+
+  php8-symfony5:
+    docker:
+      - image: circleci/php:8.0-node-browsers
+    steps:
+      - checkout
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run:
+          name: Run composer install
+          command: composer require "symfony/symfony:^5.0" --dev --no-update && composer update --no-interaction
+      - run: php -v
+      - run: composer show | grep symfony/symfony
+      - run:
+          name: "phpunit"
+          command: "./vendor/phpunit/phpunit/phpunit --do-not-cache-result"
+
+  php8-symfony6:
+    docker:
+      - image: circleci/php:8.0-node-browsers
+    steps:
+      - checkout
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run:
+          name: Run composer install
+          command: composer require "symfony/symfony:^6.0" --dev --no-update && composer update --no-interaction
+      - run: php -v
+      - run: composer show | grep symfony/symfony
+      - run:
+          name: "phpunit"
+          command: "./vendor/phpunit/phpunit/phpunit --do-not-cache-result"
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - php7-symfony4
+      - php7-symfony5
+      - php8-symfony5
+      - php8-symfony6

@@ -15,4 +15,9 @@ abstract class Constraint extends \Symfony\Component\Validator\Constraint
      * @var ManagerRegistry|null Doctrine object
      */
     public $doctrine = null;
+
+    /**
+     * @var string path
+     */
+    public $path = null;
 }

@@ -5,6 +5,7 @@ namespace Jackai\Validator;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -14,14 +15,14 @@ use Symfony\Component\Validator\Validation;
  */
 class RequestAdvancedValidateListener
 {
-    private $requireFormCode;
-    private $requireQueryCode;
+    private $requireFormCode = 0;
+    private $requireQueryCode = 0;
     private $throwOnValidateFail = true;
     private $throwOnMissingValidate = false;
     private $emptyStringIsUndefined = true;
     private $shortErrorMsg = false;
     private $ruleAlias = [];
-    private $doctrine;
+    private $doctrine = null;
     private $formRule = [];
     private $queryRule = [];
     private $ruleRequireForm = [];
@@ -66,16 +67,19 @@ class RequestAdvancedValidateListener
      */
     public function onKernelRequest(RequestEvent $event)
     {
-        if (!$event->isMasterRequest()) {
+        if (!$this->checkIsMainRequest($event)) {
             // don't do anything if it's not the master request
             return;
         }
 
         $request = $event->getRequest();
         $controller = $request->attributes->get('_controller');
-        list($controllerService, $controllerMethod) = explode('::', $controller);
 
-        if (!class_exists($controllerService)) {
+        $controllerServiceMethod = explode('::', $controller);
+        $controllerService = $controllerServiceMethod[0] ?? '';
+        $controllerMethod = $controllerServiceMethod[1] ?? '';
+
+        if (!class_exists($controllerService) || !$controllerMethod) {
             return;
         }
 
@@ -154,9 +158,49 @@ class RequestAdvancedValidateListener
         $request->request->replace($this->fillingData($this->formRule, $request->request->all()));
         $request->query->replace($this->fillingData($this->queryRule, $request->query->all()));
 
+        // 調整欄位值型態
+        $request->request->replace($this->formatDataType($this->formRule, $request->request->all()));
+        $request->query->replace($this->formatDataType($this->queryRule, $request->query->all()));
+
         // 驗證欄位值
         $this->recursiveValidate($this->formRule, $request->request->all());
         $this->recursiveValidate($this->queryRule, $request->query->all());
+    }
+
+    /**
+     * 確認是否為主要Request
+     *
+     * @param RequestEvent $event
+     * @return bool
+     */
+    private function checkIsMainRequest(RequestEvent $event): bool
+    {
+        if (version_compare(Kernel::VERSION, '5.3', '>')) {
+            return $event->isMainRequest();
+        }
+
+        return $event->isMasterRequest();
+    }
+
+    /**
+     * 調整欄位資料型態
+     *
+     * @param array $rules
+     * @param array $data
+     * @return mixed
+     */
+    private function formatDataType($rules, $data)
+    {
+        foreach ($rules as $path => $value) {
+            $v = $this->getValue($data, $path);
+
+            if ($v !== null && isset($value[0]['dataType'])) {
+                settype($v, $value[0]['dataType']);
+                $data = $this->setValue($data, $path, $v);
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -202,10 +246,11 @@ class RequestAdvancedValidateListener
             $code = isset($rule['code']) ? $rule['code'] : null;
             $defaultMsg = $this->shortErrorMsg ? "Invalid {$rule['name']}" : "{$rule['name']} is required";
             $msg = isset($rule['msg']) ? $rule['msg'] : $defaultMsg;
+            $exceptionClass = isset($rule['exception']) ? $rule['exception'] : 'InvalidArgumentException';
 
             // 如果沒有驗證規格，那就是直接必填
             if (!array_key_exists('ruleOption', $rule)) {
-                throw new \InvalidArgumentException($msg, $code);
+                throw new $exceptionClass($msg, $code);
             }
 
             $ruleOption = $rule['ruleOption'];
@@ -238,7 +283,7 @@ class RequestAdvancedValidateListener
                     $fieldValue = $this->getValue($data, $targetField);
 
                     if(in_array($fieldValue, $checkValue)) {
-                        throw new \InvalidArgumentException($msg, $code);
+                        throw new $exceptionClass($msg, $code);
                     }
 
                     break;
@@ -246,7 +291,7 @@ class RequestAdvancedValidateListener
                 case 'with':
                     foreach ($ruleOption['values'] as $checkValue) {
                         if ($this->recursiveValidateRequired($data, $checkValue)) {
-                            throw new \InvalidArgumentException($msg, $code);
+                            throw new $exceptionClass($msg, $code);
                         }
                     }
 
@@ -262,7 +307,7 @@ class RequestAdvancedValidateListener
                     }
 
                     if (count($ruleOption['values']) == $count) {
-                        throw new \InvalidArgumentException($msg, $code);
+                        throw new $exceptionClass($msg, $code);
                     }
 
                     break;
@@ -270,7 +315,7 @@ class RequestAdvancedValidateListener
                 case 'without':
                     foreach ($ruleOption['values'] as $checkValue) {
                         if (!$this->recursiveValidateRequired($data, $checkValue)) {
-                            throw new \InvalidArgumentException($msg, $code);
+                            throw new $exceptionClass($msg, $code);
                         }
                     }
 
@@ -286,7 +331,7 @@ class RequestAdvancedValidateListener
                     }
 
                     if ($count == 0) {
-                        throw new \InvalidArgumentException($msg, $code);
+                        throw new $exceptionClass($msg, $code);
                     }
 
                     break;
@@ -369,6 +414,7 @@ class RequestAdvancedValidateListener
                 $constraint =  new $ruleClass($ruleOption);
 
                 if ($constraint instanceof \Jackai\Validator\Constraint) {
+                    $constraint->path = $path;
                     $constraint->rawValues = $rawValues;
                     $constraint->doctrine = $this->doctrine;
                 }
@@ -380,8 +426,9 @@ class RequestAdvancedValidateListener
 
                     $code = isset($rule['code']) ? $rule['code'] : null;
                     $msg = isset($rule['msg']) ? $rule['msg'] : $defaultMsg;
+                    $exceptionClass = isset($rule['exception']) ? $rule['exception'] : 'InvalidArgumentException';
 
-                    throw new \InvalidArgumentException($msg, $code);
+                    throw new $exceptionClass($msg, $code);
                 }
             }
         }
