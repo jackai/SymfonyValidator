@@ -2,18 +2,23 @@
 
 namespace Jackai\Validator\Tests;
 
+use Doctrine\Common\Annotations\AnnotationException;
+use ErrorException;
+use ReflectionException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Jackai\Validator\RequestAdvancedValidateListener;
+use Symfony\Component\HttpKernel\Kernel;
 
 class RequestAdvancedValidateListenerTest extends BaseWebTestCase
 {
     /**
      * 測試Query欄位必填的狀況
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequiredQueryFail()
     {
@@ -69,9 +74,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試Form欄位必填的狀況
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequiredFormFail()
     {
@@ -126,9 +131,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試Query及Form都有必填欄位的狀況，及錯誤代碼
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireQueryAndForm()
     {
@@ -167,9 +172,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試同一個欄位有多個驗證規則的狀況
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testMultiRules()
     {
@@ -237,9 +242,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試缺少驗證規則的狀況
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testMissingValidate()
     {
@@ -270,9 +275,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試設定驗證失敗時不擲出的狀況
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testThrowOnValidateFail()
     {
@@ -288,9 +293,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 當參數為空字串，會當作沒帶入參數
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testEmptyStringIsUndefined()
     {
@@ -341,9 +346,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試特殊驗證規則: Require if
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireIf()
     {
@@ -393,9 +398,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試特殊驗證規則: Require with
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireWith()
     {
@@ -467,9 +472,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試特殊驗證規則: Require withAll
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireWithAll()
     {
@@ -525,9 +530,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試特殊驗證規則: Require without
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireWithout()
     {
@@ -598,9 +603,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試特殊驗證規則: Require withoutAll
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testRequireWithoutAll()
     {
@@ -659,9 +664,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試未帶入參數時會填寫預設值
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testDefault()
     {
@@ -690,15 +695,15 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
 
         $mockQueryParameterBag->expects($this->any())
             ->method('all')
-            ->willReturn([]);
+            ->willReturn(['price' => '99999']);
 
         $mockQueryParameterBag->expects($this->any())
             ->method('replace')
             ->will($this->returnCallback(function ($res) {
-                $this->assertEquals(['price' => "99999"], $res);
+                $this->assertEquals(['price' => '99999'], $res);
             }));
 
-        $mockRequest->attributes = new \Symfony\Component\HttpFoundation\ParameterBag(['_controller' => $controller]);
+        $mockRequest->attributes = new ParameterBag(['_controller' => $controller]);
         $mockRequest->query = $mockQueryParameterBag;
         $mockRequest->request = $mockRequestParameterBag;
 
@@ -709,9 +714,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試客制化驗證器
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testCustomValidator()
     {
@@ -740,9 +745,9 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     /**
      * 測試陣列驗證
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testArrayValue()
     {
@@ -820,11 +825,11 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     }
 
     /**
-     * 測試結構化參數未帶入參數時會填寫預設值
+     * 測試結構化參數未帶入參數時會填寫預設值以及轉換型態
      *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ErrorException
-     * @throws \ReflectionException
+     * @throws AnnotationException
+     * @throws ErrorException
+     * @throws ReflectionException
      */
     public function testStructDefault()
     {
@@ -851,17 +856,24 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockQueryParameterBag->expects($this->any())
+        $mockQueryParameterBag->expects($this->exactly(5))
             ->method('all')
-            ->willReturn([]);
+            ->will($this->onConsecutiveCalls(
+                ['enable' => 'true'],
+                ['enable' => 'true'],
+                ['enable' => 'true'],
+                ['enable' => 'true'],
+                ['enable' => true],
+            ));
 
-        $mockQueryParameterBag->expects($this->any())
+        $mockQueryParameterBag->expects($this->exactly(2))
             ->method('replace')
-            ->will($this->returnCallback(function ($res) {
-                $this->assertEquals(['price' => ['background' => 'red']], $res);
-            }));
+            ->withConsecutive(
+                [['price' => ['background' => 'red'], 'enable' => 'true']],
+                [['enable' => true]],
+            );
 
-        $mockRequest->attributes = new \Symfony\Component\HttpFoundation\ParameterBag(['_controller' => $controller]);
+        $mockRequest->attributes = new ParameterBag(['_controller' => $controller]);
         $mockRequest->query = $mockQueryParameterBag;
         $mockRequest->request = $mockRequestParameterBag;
 
@@ -877,6 +889,10 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
      */
     private function mockEvent(Request $request)
     {
+        $mainRequestMethodName = version_compare(Kernel::VERSION, '5.3', '>')
+            ? 'isMainRequest'
+            : 'isMasterRequest';
+
         $mockEvent = $this
             ->getMockBuilder('Symfony\Component\HttpKernel\Event\RequestEvent')
             ->disableOriginalConstructor()
@@ -887,7 +903,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
             ->willReturn($request);
 
         $mockEvent->expects($this->any())
-            ->method('isMasterRequest')
+            ->method($mainRequestMethodName)
             ->willReturn(true);
 
         return $mockEvent;
@@ -903,7 +919,7 @@ class RequestAdvancedValidateListenerTest extends BaseWebTestCase
     {
         $defaultOptions = [
             'ruleAlias' => [
-                "Assert" => "Symfony\\Component\\Validator\\Constraints",
+                'Assert' => 'Symfony\\Component\\Validator\\Constraints',
             ],
         ];
 

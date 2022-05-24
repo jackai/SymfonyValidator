@@ -1,6 +1,6 @@
 # Jackai Symfony Validator
 
-[![Build Status](https://travis-ci.org/jackai/SymfonyValidator.svg?branch=master)](https://travis-ci.org/jackai/SymfonyValidator)
+[![CircleCI](https://circleci.com/gh/jackai/SymfonyValidator/tree/master.svg?style=svg)](https://circleci.com/gh/jackai/SymfonyValidator/tree/master)
 
 Validate request on symfony controller annotation.
 
@@ -50,6 +50,7 @@ services:
 ### query及form驗證規則說明
 在query跟form參數中的驗證規則如下：
 * name: 欄位名稱，可以用 `.` 來串接欄位名稱，例如參數為 `config[abc]` 就可寫為 `config.abc`
+* dataType: 轉換欄位型態
 * rule: 驗證規則，目前有三種能用
     * Assert\\*: 為symfony的驗證器，可參考官方網站的列表: (https://symfony.com/doc/current/validation.html#constraints)
     * 自製的symfony的驗證器: 在參數中寫入Class位置即可，例如： `App\Validator\Constraints\ContainsAlphanumeric`，詳細說明可參考symfony官方網站 (https://symfony.com/doc/current/validation/custom_constraint.html)
@@ -167,7 +168,7 @@ use Jackai\Validator\Constraint;
 
 class DataUnique extends Constraint
 {
-    public $message = 'The data "{{ string }}" is duplicate.';
+    public $message = 'The attribute "{{ path }}" data "{{ string }}" is duplicate.';
     public $options = null;
     public $entity = null;
     public $rule = null;
@@ -199,6 +200,7 @@ class DataUniqueValidator extends ConstraintValidator
 
        if ($this->checkDataBase($constraint)) {
            $this->context->buildViolation($constraint->message)
+               ->setParameter('{{ path }}', $path)
                ->setParameter('{{ string }}', $value)
                ->addViolation();
        }

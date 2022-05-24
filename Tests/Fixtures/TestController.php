@@ -358,6 +358,7 @@ class TestController extends AbstractController
      *         {"name" = "price.shop", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "111", "msg" = "Invalid shop price"},
      *         {"name" = "price.promote", "rule" = "Assert\GreaterThan", "ruleOption" = "0", "code" = "112", "msg" = "Invalid promote price"},
      *         {"name" = "price.background", "rule" = "Assert\Length", "ruleOption" = {"min" = 1, "max" = 30}, "default" = "red", "code" = "113", "msg" = "Invalid background"},
+     *         {"name" = "enable", "dataType" = "boolean", "rule" = "Assert\Choice", "ruleOption" = {"choices" = {true, false}}, "code" = "114", "msg" = "Invalid enable"},
      *     }
      * )
      */
